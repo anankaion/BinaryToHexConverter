@@ -1,3 +1,3 @@
-# binaryCalculator
+# BinaryToHexConverter
 
-A simple binary calculator written in C
+A simple binary to hex converter

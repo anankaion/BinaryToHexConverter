@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <stdbool.h>
 #include <getopt.h>
 
-#include "operations.h"
+#define BYTESIZE 8
 
 void string_to_bits(const char* string, bool* bits) {
     for (int i = 0; i < BYTESIZE; ++i) {
@@ -15,11 +16,47 @@ void string_to_bits(const char* string, bool* bits) {
     }
 }
 
+void to_hex(const bool *number, char* hex_string) {
+    char hex_table[] = {'A', 'B', 'C', 'D', 'E', 'F'};
+
+    int cur_value = 0;
+    int bool_to_int = 0;
+
+    int pos_overall = 0;
+    int pos_hex_string = 0;
+
+    //go through all quartets
+    for (int i = 0; i < (BYTESIZE / 4); ++i) {
+
+        //process quartet
+        for (int j = 3; j >= 0; --j) {
+            if (number[pos_overall]) {
+                bool_to_int = 1;
+            } else {
+                bool_to_int = 0;
+            }
+            cur_value += pow(2, j) * bool_to_int;
+
+            pos_overall++;
+        }
+
+        //add hex number to array
+        //when value is under 10 just use normal number
+        //else convert to hex character through global hex table
+        if (cur_value < 10) {
+            hex_string[pos_hex_string] = cur_value + '0';
+        } else {
+            hex_string[pos_hex_string] = hex_table[cur_value - 10];
+        }
+
+        pos_hex_string++;
+        cur_value = 0;
+    }
+}
+
 int main(int argc, char** argv) {
     bool first_number_bits[BYTESIZE];
-    bool second_number_bits[BYTESIZE];
     char first_number_string[BYTESIZE];
-    char second_number_string[BYTESIZE];
     char hex_string[BYTESIZE / 4];
 
     int c;
@@ -28,30 +65,6 @@ int main(int argc, char** argv) {
 
     while ((c = getopt (argc, argv, "asmdhf:i:")) != -1) {
         switch (c) {
-            //add
-            case 'a':
-                opt = 'a';
-                second_number_flag = true;
-                break;
-
-            //substract
-            case 's':
-                opt = 's';
-                second_number_flag = true;
-                break;
-
-            //multiply
-            case 'm':
-                opt = 'm';
-                second_number_flag = true;
-                break;
-
-            //division
-            case 'd':
-                opt = 'd';
-                second_number_flag = true;
-                break;
-
             //show as hex
             case 'h':
                 opt = 'h';
@@ -59,12 +72,6 @@ int main(int argc, char** argv) {
 
             case 'f':
                 strcpy(first_number_string, optarg);
-                break;
-
-            case 'i':
-                if (second_number_flag) {
-                    strcpy(second_number_string, optarg);
-                }
                 break;
 
             default:
@@ -77,18 +84,6 @@ int main(int argc, char** argv) {
     string_to_bits(first_number_string, first_number_bits);
 
     switch (opt) {
-        case 'a':
-            break;
-
-        case 's':
-            break;
-
-        case 'm':
-            break;
-
-        case 'd':
-            break;
-
         case 'h':
             to_hex(first_number_bits, hex_string);
             for (int i = 0; i < (BYTESIZE / 4); i++) {
